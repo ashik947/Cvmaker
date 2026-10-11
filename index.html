@@ -18,8 +18,19 @@ button.c:active{transform:scale(.98)}
 .i{font-size:38px;width:62px;height:62px;border-radius:16px;background:var(--gr);display:flex;align-items:center;justify-content:center;flex:none}
 .c b{display:block;font-size:19px}
 .c span{color:var(--mu);font-size:14px}
+.pf{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.av{position:relative;width:88px;height:88px;flex:none;border-radius:50%;background:var(--card);border:3px solid var(--gr);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.av img{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:50%;object-fit:cover}
+.av .ph{font-size:40px;line-height:1}
+.av .cam{position:absolute;right:-4px;bottom:-4px;width:30px;height:30px;border-radius:50%;background:var(--gr);color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);z-index:2}
+.av input{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:200px;z-index:3}
+.pt{flex:1;min-width:0}
+.pt input{width:100%;border:0;border-bottom:1px solid var(--bd);background:transparent;color:var(--tx);font:600 20px/1.4 inherit;font-family:inherit;padding:4px 0;outline:none}
+.pt span{display:block;color:var(--mu);font-size:13px;margin-top:4px}
+#__ptst{position:fixed;left:12px;right:12px;bottom:18px;z-index:99;background:#1d2420;color:#fff;padding:12px 16px;border-radius:14px;text-align:center;font-size:15px}
 </style></head><body>
 <div id="home"><div class="w">
+<div class="pf"><label class="av" id="av"><span class="ph" id="avph">👤</span><img id="avimg" alt="" style="display:none"><span class="cam">📷</span><input type="file" accept="image/*" id="avin"></label><div class="pt"><input id="pname" type="text" maxlength="30" placeholder="আপনার নাম লিখুন" autocomplete="off"><span>ছবিতে চাপ দিয়ে প্রোফাইল ছবি দিন বা বদলান</span></div></div>
 <h1>স্বাগতম</h1>
 <p class="s">কোনটি খুলবেন বেছে নিন</p>
 <button class="c" data-k="cv"><div class="i">📄</div><div><b>সিভি মেকার</b><span>সিভি তৈরি ও সেভ করুন</span></div></button>
@@ -49,5 +60,27 @@ function openA(k){
 window.addEventListener("message",function(e){if(e.data==="__home")closeA()});
 window.addEventListener("popstate",function(){if(FR)closeA()});
 document.querySelectorAll("button.c").forEach(function(b){b.onclick=function(){openA(b.getAttribute("data-k"))}});
+
+(function(){
+var mem={};
+function sg(k){try{var v=localStorage.getItem(k);if(v!==null)return v}catch(e){}return mem[k]||null}
+function ss(k,v){mem[k]=v;try{localStorage.setItem(k,v);return true}catch(e){return false}}
+function toast(m){var o=document.getElementById("__ptst");if(o)o.remove();var d=document.createElement("div");d.id="__ptst";d.textContent=m;document.body.appendChild(d);setTimeout(function(){d.remove()},3500)}
+function show(u){var i=document.getElementById("avimg");if(u){i.src=u;i.style.display="block";document.getElementById("avph").style.display="none"}}
+var p=sg("profile_photo");if(p)show(p);
+var n=sg("profile_name");var ni=document.getElementById("pname");if(n)ni.value=n;
+ni.oninput=function(){ss("profile_name",ni.value)};
+function fromFile(f,cb){
+  var fin=false;
+  function fb(){if(fin)return;fin=true;var r=new FileReader();r.onload=function(){cb(r.result)};r.onerror=function(){toast("ছবি লোড করা যায়নি, অন্য ছবি দিন")};try{r.readAsDataURL(f)}catch(e){toast("ছবি লোড করা যায়নি")}}
+  var url;try{url=URL.createObjectURL(f)}catch(e){fb();return}
+  var img=new Image();
+  img.onload=function(){if(fin)return;try{var S=400,w=img.naturalWidth||1,h=img.naturalHeight||1,m=Math.min(w,h),sx=(w-m)/2,sy=(h-m)/2,c=document.createElement("canvas");c.width=S;c.height=S;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,S,S);x.drawImage(img,sx,sy,m,m,0,0,S,S);var d=c.toDataURL("image/jpeg",.88);try{URL.revokeObjectURL(url)}catch(e){}fin=true;cb(d)}catch(e){fb()}};
+  img.onerror=function(){try{URL.revokeObjectURL(url)}catch(e){}if(fin)return;fin=true;toast("এই ছবিটি খোলা যায়নি। JPG বা PNG ছবি দিন")};
+  img.src=url;
+}
+var inp=document.getElementById("avin");
+inp.onchange=function(){var f=inp.files&&inp.files[0];if(!f)return;fromFile(f,function(d){show(d);if(!ss("profile_photo",d))toast("ছবি দেখানো হচ্ছে, কিন্তু সেভ করা যায়নি");try{inp.value=""}catch(e){}})};
+})();
 </script>
 </body></html>
