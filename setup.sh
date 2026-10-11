@@ -37,6 +37,8 @@ plugins {
     id 'com.android.application'
 }
 
+def runNo = Integer.parseInt(System.getenv("GITHUB_RUN_NUMBER") ?: "1")
+
 android {
     namespace 'com.aminmanjil.cvmaker'
     compileSdk 34
@@ -45,7 +47,7 @@ android {
         applicationId 'com.aminmanjil.cvmaker'
         minSdk 29
         targetSdk 34
-        versionCode (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger()
+        versionCode runNo
         versionName "1.0"
     }
 
